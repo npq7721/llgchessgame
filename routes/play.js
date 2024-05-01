@@ -49,22 +49,22 @@ router.post('/', function(req, res) {
     res.redirect('/game/' + token + '/' + side);
 });
 
-router.get("/allowance", async (req, res) => {
-    try {
-        if(req.query.user && req.query.spender) {
-            let funcName = 'allowance';
-            let funcParams = [
-                req.query.user,
-                req.query.spender
-            ];
-            let result = await contract.methods[funcName](...funcParams).call();
-            res.send(result.toString());
-        } else {
-            res.status(400).send('user and spender params are required');
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).send("Expected error, check server log for more info")
+router.get("/allowance", (req, res) => {
+    if(req.query.user && req.query.spender) {
+        let funcName = 'allowance';
+        let funcParams = [
+            req.query.user,
+            req.query.spender
+        ];
+        contract.methods[funcName](...funcParams).call()
+            .then(result => {
+                res.send(result.toString());
+            }).catch(err => {
+                console.error("Error:", err);
+                res.status(500).send("Expected error, check server log for more info")
+            });
+    } else {
+        res.status(400).send('user and spender params are required');
     }
 })
 
